@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#11100f">
+<title>Our Museum — Interactive Memories</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;color:#f5eee5;font-family:Georgia,'Times New Roman',serif}#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}.screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#34302b 0,#151412 58%,#080808 100%);z-index:10;text-align:center;padding:24px}.intro h1{font-size:clamp(48px,10vw,100px);font-weight:400;margin:15px 0}.intro h1 em{color:#d0b18b}.eyebrow{font:10px Arial;letter-spacing:5px;color:#c7ad8b}.intro p{font:13px/2 Arial;color:#bcb3a8}.btn{border:1px solid #c4a77e;color:#f5eee5;background:#211e1a;padding:14px 24px;cursor:pointer;font:11px Arial;letter-spacing:2px;margin:8px}.btn:hover{background:#c4a77e;color:#17130f}.hint{font:10px Arial;color:#a99f91;margin-top:24px;line-height:2}.hud{position:fixed;z-index:3;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}.brand{font-size:17px;text-shadow:0 2px 8px #000}.brand em{color:#d2b48d}.hud button{pointer-events:auto;background:#171512bb;border:1px solid #c8b18e66;color:#f5eee5;padding:10px 13px;font:10px Arial;backdrop-filter:blur(8px)}.help{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:3;background:#171512b8;border:1px solid #ffffff20;padding:10px 16px;border-radius:30px;font:11px Arial;color:#e8dfd3;white-space:nowrap;pointer-events:none}.prompt{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);z-index:4;background:#e9e0d2;color:#211c17;padding:11px 18px;font:12px Arial;display:none}.prompt.show{display:block}.panel{position:fixed;inset:0;background:#070605eF;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}.panel.open{display:flex}.panelbox{width:min(680px,100%);max-height:90vh;overflow:auto;background:#eee7dc;color:#241f19;padding:22px;position:relative;text-align:center}.panelbox h2{font-weight:400;font-size:30px}.panelbox p{font:12px/1.8 Arial;color:#71675b}.close{position:absolute;top:10px;right:10px;background:#241f19;color:#fff;border:0;width:34px;height:34px;cursor:pointer}.preview{max-width:100%;max-height:55vh;object-fit:contain;margin:12px auto}.upload{display:inline-block;background:#28231d;color:#fff;padding:12px 18px;margin:8px;cursor:pointer;font:11px Arial}.upload input{display:none}.lookpad{position:fixed;top:76px;right:0;bottom:158px;width:62vw;z-index:2;touch-action:none;background:transparent;display:none}.mobilepad{position:fixed;bottom:62px;left:18px;width:116px;height:116px;border:1px solid #ffffff45;border-radius:50%;z-index:5;display:none;touch-action:none;background:#1115}.stick{position:absolute;left:35px;top:35px;width:44px;height:44px;border-radius:50%;background:#e9dfd0a8;border:1px solid #fff8}.actions{position:fixed;bottom:75px;right:18px;z-index:5;display:none}.actions button{width:58px;height:58px;border-radius:50%;background:#211d18bb;border:1px solid #d4b58b;color:white;font:11px Arial}.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:30;background:#e9e0d2;color:#211c17;padding:10px 16px;font:12px Arial;display:none}.toast.show{display:block}@media(max-width:700px){.lookpad{display:block}.mobilepad,.actions{display:block}.help{bottom:12px;font-size:9px}.hud{top:9px;left:9px;right:9px}.hud button{padding:8px;font-size:9px}}
+</style>
+</head><body>
+<div id="game"></div>
+<section class="screen intro" id="intro"><div><div class="eyebrow">A PRIVATE WORLD · MADE FOR TWO</div><h1>Our <em>Museum</em></h1><p>مش مجرد صور… دي حكاية تقدري تمشي جواها وتكتشفيها بنفسك.</p><button class="btn" id="start">ENTER THE MUSEUM　↗</button><div class="hint">W A S D أو الأسهم للحركة · حرّك الماوس لتلف بالكاميرا<br>على الموبايل استخدم عصاية الحركة وزرار التفاعل</div></div></section>
+<div class="hud"><div class="brand">Our <em>Museum</em></div><div><button id="music">♫ MUSIC OFF</button> <button id="edit">ADD MEMORIES</button></div></div>
+<div class="prompt" id="prompt">اضغط E أو زر التفاعل لفتح الذكرى</div><div class="help">استكشف المكان واقترب من الصور والشاشات ♡</div>
+<div class="lookpad" id="lookpad" aria-label="اسحب هنا لتحريك زاوية الكاميرا"></div><div class="mobilepad" id="pad"><div class="stick" id="stick"></div></div><div class="actions"><button id="act">تفاعل</button></div>
+<div class="panel" id="panel"><div class="panelbox"><button class="close" id="close">×</button><h2 id="panelTitle">A memory of us</h2><p id="panelText">ضيف صورة أو فيديو للذكرى دي</p><div id="mediaView"></div><label class="upload">اختار صورة أو فيديو<input type="file" id="file" accept="image/*,video/*"></label><button class="btn" id="clearMedia">إزالة الوسائط</button><p>تقدر تضيف ذكرياتك لكل إطار في المتحف، وبعدها تحفظ نسخة الهدية.</p></div></div>
+<div class="panel" id="settings"><div class="panelbox"><button class="close" id="settingsClose">×</button><h2>Customize your museum</h2><p>ضيف صور وفيديوهات للمعرض، وبعدها صدّر نسخة مستقلة تقدر تبعتها.</p><label class="upload">اختار موسيقى<input type="file" id="audioFile" accept="audio/*"></label><button class="btn" id="export">SAVE GIFT FILE</button><p id="exportInfo"></p></div></div><div class="toast" id="toast"></div><audio id="audio" loop></audio>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const SUPABASE_URL='https://ikatltlfkxcxaigjyfza.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_X_wOxMBz-EsI9mLrDcfwWQ_tC1kUQ7z';
+const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const BUCKET='museum';
+const mount=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0xaaa69d);scene.fog=new THREE.Fog(0xaaa69d,17,38);
+const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x777064,2.0));const key=new THREE.DirectionalLight(0xffeed8,2.4);key.position.set(-5,9,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
+const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});const wall=mat(0xd5d0c6),floorMat=mat(0xc7c0b4),trim=mat(0x8d8171),black=mat(0x171615),gold=mat(0xb89b72,.35,.55);
+function box(w,h,d,material,x,y,z,cast=true){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;scene.add(o);return o}
+// gallery architecture
+box(24,.35,24,floorMat,0,-.2,0,false);box(24,.3,.35,wall,0,4,-12,false);box(.35,4,24,wall,-12,2,0,false);box(.35,4,24,wall,12,2,0,false);box(24,4,.35,wall,0,2,12,false);box(24,.25,24,mat(0xaaa397),0,4.15,0,false);
+// skirting + ceiling beams
+for(let x=-10;x<=10;x+=5){box(.08,.12,23,trim,x,.08,0,false);box(.12,.16,23,trim,x,3.98,0,false)}
+// ceiling lights
+for(let x=-8;x<=8;x+=4){let lamp=new THREE.PointLight(0xffe8c9,55,10,2);lamp.position.set(x,3.8,-2);scene.add(lamp);box(1.1,.06,.5,mat(0xf7e7cb,.3),x,3.95,-2,false)}
+// avatar third-person
+function makeAvatar(topColor,hairColor,skinColor){const g=new THREE.Group();let body=new THREE.Mesh(new THREE.CapsuleGeometry(.23,.62,4,8),mat(topColor));body.position.y=1.05;body.castShadow=true;g.add(body);let head=new THREE.Mesh(new THREE.SphereGeometry(.19,16,12),mat(skinColor));head.position.y=1.63;head.castShadow=true;g.add(head);let hair=new THREE.Mesh(new THREE.SphereGeometry(.195,16,12,0,Math.PI*2,0,Math.PI*.55),mat(hairColor));hair.position.y=1.69;g.add(hair);for(let s of [-1,1]){let leg=new THREE.Mesh(new THREE.CapsuleGeometry(.085,.48,3,7),mat(0x393b3e));leg.position.set(s*.13,.38,0);g.add(leg);let arm=new THREE.Mesh(new THREE.CapsuleGeometry(.07,.48,3,7),mat(topColor));arm.position.set(s*.29,1.05,0);arm.rotation.z=s*.12;g.add(arm)}return g}
+const player=makeAvatar(0x355c91,0x4b3428,0xd4a17e);scene.add(player);player.position.set(0,0,7);const companion=makeAvatar(0x9b795d,0x49372b,0xc99472);scene.add(companion);companion.position.set(1.2,0,7.5);
+// gallery art frames
+const artworks=[];const canvasTex=(label)=>{let c=document.createElement('canvas');c.width=512;c.height=640;let x=c.getContext('2d');let gr=x.createLinearGradient(0,0,512,640);gr.addColorStop(0,'#e5d8c5');gr.addColorStop(1,'#bba58b');x.fillStyle=gr;x.fillRect(0,0,512,640);x.fillStyle='#5d5146';x.font='italic 70px Georgia';x.textAlign='center';x.fillText('Our',256,275);x.fillText('Memory',256,355);x.font='24px Arial';x.fillText(label,256,440);let t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t};
+function addFrame(x,y,z,rot,label,i){let group=new THREE.Group();group.position.set(x,y,z);group.rotation.y=rot;scene.add(group);let outer=new THREE.Mesh(new THREE.BoxGeometry(1.65,2.05,.13),gold);outer.castShadow=true;group.add(outer);let inner=new THREE.Mesh(new THREE.BoxGeometry(1.48,1.88,.035),mat(0xf3eee5));inner.position.z=.085;group.add(inner);let pic=new THREE.Mesh(new THREE.PlaneGeometry(1.34,1.72),new THREE.MeshBasicMaterial({map:canvasTex(label)}));pic.position.z=.11;group.add(pic);artworks.push({group,pic,index:i,label,media:null,texture:null});}
+addFrame(-8,2,-11.75,0,'FIRST HELLO',0);addFrame(-3.2,2,-11.75,0,'OUR DAY',1);addFrame(3.2,2,-11.75,0,'FAVORITE',2);addFrame(8,2,-11.75,0,'TOGETHER',3);
+addFrame(-11.75,2,-7,Math.PI/2,'MOMENTS',4);addFrame(-11.75,2,-1,Math.PI/2,'SMILES',5);addFrame(11.75,2,-6,-Math.PI/2,'US',6);addFrame(11.75,2,1,-Math.PI/2,'ALWAYS',7);
+// central cinema screen + bench
+box(5.6,2.8,.3,black,0,2,-5.5);let screenMesh=new THREE.Mesh(new THREE.PlaneGeometry(5.1,2.3),new THREE.MeshBasicMaterial({map:canvasTex('OUR STORY')}));screenMesh.position.set(0,2,-5.32);scene.add(screenMesh);artworks.push({group:screenMesh,pic:screenMesh,index:8,label:'THE BIG SCREEN',media:null,texture:null});box(5.9,.18,.6,trim,0,.35,-3.4);box(5.5,.12,.5,mat(0x6f5947),0,.52,-3.4);
+// plinths and wall captions
+for(let x of [-7,7]){box(1.2,.9,1.2,mat(0xbcb2a3),x,.45,1);box(1.4,.08,1.4,gold,x,.94,1)}
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e')interact()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let yaw=0,pitch=0,dragPointer=null,lastX=0,lastY=0;
+function beginLook(e){e.preventDefault();dragPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;if(e.currentTarget.setPointerCapture)e.currentTarget.setPointerCapture(e.pointerId)}
+function moveLook(e){if(dragPointer!==e.pointerId)return;e.preventDefault();const sens=e.pointerType==='touch'?.009:.005;yaw-=(e.clientX-lastX)*sens;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-lastY)*.005,-.72,.72);lastX=e.clientX;lastY=e.clientY}
+function endLook(e){if(dragPointer===e.pointerId)dragPointer=null}
+const lookpad=document.querySelector('#lookpad');
+lookpad.addEventListener('pointerdown',beginLook,{passive:false});lookpad.addEventListener('pointermove',moveLook,{passive:false});lookpad.addEventListener('pointerup',endLook);lookpad.addEventListener('pointercancel',endLook);
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')beginLook(e)},{passive:false});renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerType!=='touch')moveLook(e)},{passive:false});renderer.domElement.addEventListener('pointerup',endLook);renderer.domElement.addEventListener('pointercancel',endLook);
+let joy={x:0,y:0},pad=document.querySelector('#pad'),stick=document.querySelector('#stick');pad.addEventListener('pointerdown',e=>{pad.setPointerCapture(e.pointerId);moveJoy(e)});pad.addEventListener('pointermove',e=>{if(e.buttons)moveJoy(e)});pad.addEventListener('pointerup',()=>{joy.x=joy.y=0;stick.style.transform='translate(0,0)'});function moveJoy(e){let r=pad.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),len=Math.hypot(dx,dy),k=Math.min(1,45/(len||1));joy.x=dx*k/45;joy.y=dy*k/45;stick.style.transform=`translate(${joy.x*34}px,${joy.y*34}px)`}
+let nearest=null;function interact(){if(nearest){openArtwork(nearest)}else toast('اقترب من إحدى الصور أو الشاشة الأول ♡')};document.querySelector('#act').onclick=interact;
+function openArtwork(a){selected=a;document.querySelector('#panelTitle').textContent=a.label;document.querySelector('#panelText').textContent='دي مساحة مخصصة لذكرى من ذكرياتكم';showMedia(a);document.querySelector('#panel').classList.add('open')}
+let selected=null;function showMedia(a){let v=document.querySelector('#mediaView');v.replaceChildren();if(a.media){if(a.media.type.startsWith('video/')){let el=a.video||document.createElement('video');el.controls=true;el.autoplay=false;el.muted=false;el.playsInline=true;el.setAttribute('playsinline','');el.preload='metadata';el.className='preview';if(!el.src)el.src=a.media.url;v.append(el)}else{let el=document.createElement('img');el.src=a.media.url;el.className='preview';v.append(el)}}else{v.textContent='♡';v.style.fontSize='46px';v.style.color='#b89b72'}}
+function fileToData(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+async function applyRemoteMedia(a,url,type,name){
+  a.media={url,type,name};
+  if(a.texture){a.texture.dispose();a.texture=null;}
+  if(type.startsWith('image/')){
+    const im=new Image();
+    im.crossOrigin='anonymous';
+    im.decoding='async';
+    im.onload=()=>{
+      const tex=new THREE.Texture(im);tex.colorSpace=THREE.SRGBColorSpace;tex.needsUpdate=true;
+      if(a.texture)a.texture.dispose();a.texture=tex;
+      a.pic.material=new THREE.MeshBasicMaterial({map:tex});
+    };
+    im.onerror=()=>console.error('Image failed to load:',name,url);
+    im.src=url;
+    showMedia(a);
+    return;
+  }
+  if(type.startsWith('video/')){
+    if(a.video){a.video.pause();a.video.removeAttribute('src');a.video.load();}
+    const vid=document.createElement('video');
+    vid.crossOrigin='anonymous';vid.src=url;vid.loop=true;vid.muted=true;vid.playsInline=true;
+    vid.setAttribute('playsinline','');vid.preload='metadata';
+    vid.addEventListener('loadeddata',()=>{
+      const tex=new THREE.VideoTexture(vid);tex.colorSpace=THREE.SRGBColorSpace;
+      if(a.texture)a.texture.dispose();a.texture=tex;
+      a.pic.material=new THREE.MeshBasicMaterial({map:tex});
+    },{once:true});
+    vid.addEventListener('error',()=>console.error('Video failed to load:',name,vid.error),{once:true});
+    a.video=vid;vid.load();showMedia(a);return;
+  }
+  throw new Error('صيغة الملف غير مدعومة. اختار صورة أو فيديو MP4');
+}
+async function loadSavedMemories(){
+  toast('جاري تحميل الذكريات في الخلفية...');
+  try{
+    const {data,error}=await supabase.from('memories').select('id,title,description,media_url,media_type,created_at').order('created_at',{ascending:true});
+    if(error)throw error;
+    const jobs=(data||[]).map(async row=>{
+      const idx=Number(row.description);const a=artworks.find(x=>x.index===idx);if(!a)return;
+      const {data:signed,error:signErr}=await supabase.storage.from(BUCKET).createSignedUrl(row.media_url,60*60*24*6);
+      if(signErr)throw signErr;
+      await applyRemoteMedia(a,signed.signedUrl,row.media_type,row.title||'memory');
+    });
+    const results=await Promise.allSettled(jobs);
+    const failed=results.filter(x=>x.status==='rejected');
+    if(failed.length)console.error('Some memories could not be loaded:',failed);
+    toast(failed.length?`تم تحميل الذكريات مع تعذر تحميل ${failed.length} ملف`:'تم تحميل الذكريات المحفوظة ♡');
+  }catch(err){console.error(err);toast('تعذر تحميل الذكريات: '+(err.message||'تحقق من إعدادات Supabase'));}
+}
+loadSavedMemories();
+document.querySelector('#file').onchange=async e=>{let f=e.target.files[0];if(!f||!selected)return;const input=e.target;input.disabled=true;toast('جاري رفع الذكرى...');try{const ext=(f.name.split('.').pop()||'').toLowerCase();const inferred=({mp4:'video/mp4',m4v:'video/mp4',webm:'video/webm',ogv:'video/ogg',mov:'video/quicktime',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif'})[ext]||'';const mediaType=f.type||inferred;if(!mediaType.startsWith('image/')&&!mediaType.startsWith('video/'))throw new Error('نوع الملف غير مدعوم. جرّب فيديو MP4');const safeName=f.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=`${Date.now()}-${crypto.randomUUID()}-${safeName}`;const {error:uploadError}=await supabase.storage.from(BUCKET).upload(path,f,{contentType:mediaType,upsert:false});if(uploadError)throw uploadError;const {error:rowError}=await supabase.from('memories').insert({title:f.name,description:String(selected.index),media_url:path,media_type:mediaType});if(rowError){await supabase.storage.from(BUCKET).remove([path]);throw rowError}const {data:signed,error:signError}=await supabase.storage.from(BUCKET).createSignedUrl(path,60*60*24*6);if(signError)throw signError;await applyRemoteMedia(selected,signed.signedUrl,mediaType,f.name);toast('اتحفظت الذكرى على قاعدة البيانات ♡')}catch(err){console.error(err);toast('فشل الحفظ: '+(err.message||'راجع صلاحيات Supabase'))}finally{input.disabled=false;input.value=''}};
+document.querySelector('#clearMedia').onclick=()=>{if(!selected)return;selected.media=null;selected.pic.material.map=canvasTex(selected.label);selected.pic.material.needsUpdate=true;showMedia(selected)};
+document.querySelector('#close').onclick=()=>document.querySelector('#panel').classList.remove('open');document.querySelector('#edit').onclick=()=>document.querySelector('#settings').classList.add('open');document.querySelector('#settingsClose').onclick=()=>document.querySelector('#settings').classList.remove('open');
+const audio=document.querySelector('#audio');document.querySelector('#audioFile').onchange=e=>{if(e.target.files[0]){audio.src=URL.createObjectURL(e.target.files[0]);audio.play();document.querySelector('#music').textContent='♫ MUSIC ON'}};document.querySelector('#music').onclick=()=>{if(!audio.src){document.querySelector('#audioFile').click();return}if(audio.paused){audio.play();document.querySelector('#music').textContent='♫ MUSIC ON'}else{audio.pause();document.querySelector('#music').textContent='♫ MUSIC OFF'}};
+function toast(t){let el=document.querySelector('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+document.querySelector('#export').onclick=async()=>{let clone=document.documentElement.cloneNode(true);let data=artworks.map(a=>a.media);let source=document.documentElement.outerHTML;let marker='/*__MEDIA_DATA__*/';let payload=JSON.stringify(data);let updated=source.replace('</scr'+'ipt>','window.__SAVED_MEDIA__='+payload+';\n</scr'+'ipt>');let blob=new Blob([updated],{type:'text/html;charset=utf-8'});let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Our-Museum-For-You.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);document.querySelector('#exportInfo').textContent='تم تجهيز ملف الهدية. افتحه في متصفح حديث مع اتصال بالإنترنت.'};
+// Restore embedded media in exported copy
+if(window.__SAVED_MEDIA__){window.__SAVED_MEDIA__.forEach(async (m,i)=>{if(!m)return;let a=artworks[i];a.media=m;if(m.type.startsWith('image/')){let im=new Image();im.src=m.url;await im.decode();let tx=new THREE.Texture(im);tx.colorSpace=THREE.SRGBColorSpace;tx.needsUpdate=true;a.texture=tx;a.pic.material=new THREE.MeshBasicMaterial({map:tx})}else{let vd=document.createElement('video');vd.src=m.url;vd.loop=true;vd.muted=true;vd.playsInline=true;vd.play().catch(()=>{});let tx=new THREE.VideoTexture(vd);tx.colorSpace=THREE.SRGBColorSpace;a.video=vd;a.texture=tx;a.pic.material=new THREE.MeshBasicMaterial({map:tx})}})}
+const clock=new THREE.Clock();let started=false;document.querySelector('#start').onclick=()=>{document.querySelector('#intro').style.display='none';started=true;toast('أهلاً بيكي في متحف الذكريات ♡')};
+function animate(){requestAnimationFrame(animate);let dt=Math.min(clock.getDelta(),.04);if(started&&!document.querySelector('#panel').classList.contains('open')&&!document.querySelector('#settings').classList.contains('open')){let f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joy.y;let s=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;let len=Math.hypot(f,s);if(len>.08){f/=Math.max(1,len);s/=Math.max(1,len);let speed=3.2*dt;player.position.x+= (Math.cos(yaw)*s+Math.sin(yaw)*f)*speed;player.position.z+= (Math.sin(yaw)*s-Math.cos(yaw)*f)*speed;player.position.x=THREE.MathUtils.clamp(player.position.x,-10.5,10.5);player.position.z=THREE.MathUtils.clamp(player.position.z,-10.5,10.5);player.rotation.y=yaw+Math.atan2(s,f);player.position.y=Math.abs(Math.sin(performance.now()*.012))*.035;companion.position.lerp(new THREE.Vector3(player.position.x+1.2,0,player.position.z+1.1),dt*1.8);companion.lookAt(player.position.x,0,player.position.z)}let target=new THREE.Vector3(player.position.x+Math.sin(yaw)*4,2.8+pitch*4,player.position.z-Math.cos(yaw)*4);let desired=new THREE.Vector3(player.position.x-Math.sin(yaw)*5,3.2+pitch*4,player.position.z+Math.cos(yaw)*5);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(target);nearest=null;let best=3.2;for(let a of artworks){let d=player.position.distanceTo(a.group.position);if(d<best){best=d;nearest=a}}document.querySelector('#prompt').classList.toggle('show',!!nearest)}renderer.render(scene,camera)}animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>
